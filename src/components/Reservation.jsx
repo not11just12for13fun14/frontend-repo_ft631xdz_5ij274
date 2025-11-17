@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { motion } from 'framer-motion'
 
 const brandBlue = '#1177bf'
 const baseUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'
@@ -27,7 +28,10 @@ export default function Reservation() {
   }
 
   return (
-    <section id="prenota" className="relative py-20 bg-black">
+    <section id="prenota" className="relative py-24 bg-black overflow-hidden">
+      {/* soft glow */}
+      <motion.div className="pointer-events-none absolute -bottom-24 -left-24 w-[36rem] h-[36rem] rounded-full opacity-20" style={{ background: `radial-gradient(circle, ${brandBlue}66, transparent 60%)` }} animate={{ scale: [1, 1.08, 1] }} transition={{ duration: 14, repeat: Infinity }} />
+
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 items-start">
           <div>
@@ -40,11 +44,15 @@ export default function Reservation() {
             </div>
           </div>
 
-          <form onSubmit={submit} className="bg-white rounded-2xl p-6 shadow-xl">
+          <motion.form onSubmit={submit} className="bg-white rounded-2xl p-6 shadow-xl"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.4 }}
+          >
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-sm text-black/70">Nome</label>
-                <input name="name" value={form.name} onChange={update} required className="w-full border rounded-lg px-3 py-2" />
+                <input name="name" value={form.name} onChange={update} required className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[${brandBlue}]" />
               </div>
               <div>
                 <label className="text-sm text-black/70">Email</label>
@@ -71,9 +79,9 @@ export default function Reservation() {
                 <textarea name="notes" value={form.notes} onChange={update} rows="3" className="w-full border rounded-lg px-3 py-2" />
               </div>
             </div>
-            <button className="mt-4 w-full rounded-full px-5 py-3 font-semibold text-white" style={{background: brandBlue}}>Prenota</button>
+            <button className="mt-4 w-full rounded-full px-5 py-3 font-semibold text-white hover:shadow-[0_12px_40px_rgba(17,119,191,0.4)] transition" style={{background: brandBlue}}>Prenota</button>
             {status && <p className="mt-3 text-sm">{status}</p>}
-          </form>
+          </motion.form>
         </div>
       </div>
     </section>

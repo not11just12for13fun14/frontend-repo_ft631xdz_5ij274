@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 
 const brandBlue = '#1177bf'
 const baseUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'
@@ -65,7 +66,15 @@ export default function BocconiBuilder() {
   }
 
   return (
-    <section id="bocconi" className="relative py-20 bg-black text-white">
+    <section id="bocconi" className="relative py-24 bg-black text-white overflow-hidden">
+      {/* flowing edge accent */}
+      <motion.div
+        className="pointer-events-none absolute -top-24 -right-24 w-[40rem] h-[40rem] rounded-full opacity-30"
+        style={{ background: `radial-gradient(circle, ${brandBlue}55, transparent 60%)` }}
+        animate={{ scale: [1, 1.05, 1], rotate: [0, 15, 0] }}
+        transition={{ duration: 12, repeat: Infinity }}
+      />
+
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-10">
           <h2 className="text-3xl sm:text-4xl font-bold">Costruisci la tua prima portata a bocconi</h2>
@@ -81,10 +90,17 @@ export default function BocconiBuilder() {
                 {pastaExamples.map((p) => {
                   const active = selected.some(x => x.name === p.name && x.type === 'pasta')
                   return (
-                    <button key={p.name} onClick={() => toggleItem({ ...p, type: 'pasta' })} className={`rounded-xl px-4 py-3 text-left border transition ${active ? 'border-transparent' : 'border-white/15 hover:border-white/30'}`} style={{background: active ? brandBlue : 'transparent'}}>
+                    <motion.button
+                      whileTap={{ scale: 0.98 }}
+                      whileHover={{ y: -2, boxShadow: `0 10px 30px ${brandBlue}33` }}
+                      key={p.name}
+                      onClick={() => toggleItem({ ...p, type: 'pasta' })}
+                      className={`rounded-xl px-4 py-3 text-left border transition ${active ? 'border-transparent' : 'border-white/15 hover:border-white/30'}`}
+                      style={{background: active ? brandBlue : 'transparent'}}
+                    >
                       <div className="font-medium">{p.name}</div>
                       <div className="text-xs text-white/70">Boccone 3€</div>
-                    </button>
+                    </motion.button>
                   )
                 })}
               </div>
@@ -96,10 +112,17 @@ export default function BocconiBuilder() {
                 {salse.map((s) => {
                   const active = selected.some(x => x.name === s.name && x.type === 'salsa')
                   return (
-                    <button key={s.name} onClick={() => toggleItem({ ...s, type: 'salsa' })} className={`rounded-xl px-4 py-3 text-left border transition ${active ? 'border-transparent' : 'border-white/15 hover:border-white/30'}`} style={{background: active ? brandBlue : 'transparent'}}>
+                    <motion.button
+                      whileTap={{ scale: 0.98 }}
+                      whileHover={{ y: -2, boxShadow: `0 10px 30px ${brandBlue}33` }}
+                      key={s.name}
+                      onClick={() => toggleItem({ ...s, type: 'salsa' })}
+                      className={`rounded-xl px-4 py-3 text-left border transition ${active ? 'border-transparent' : 'border-white/15 hover:border-white/30'}`}
+                      style={{background: active ? brandBlue : 'transparent'}}
+                    >
                       <div className="font-medium">{s.name}</div>
                       <div className="text-xs text-white/70">+1€ una volta</div>
-                    </button>
+                    </motion.button>
                   )
                 })}
               </div>
@@ -108,24 +131,41 @@ export default function BocconiBuilder() {
 
           {/* Riepilogo */}
           <div className="lg:col-span-1">
-            <div className="rounded-2xl border border-white/10 p-6 sticky top-24" style={{boxShadow: `0 10px 30px ${brandBlue}22`}}>
-              <input value={title} onChange={(e) => setTitle(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 mb-4 focus:outline-none" placeholder="Dai un nome al tuo piatto" />
-              <ul className="space-y-2 mb-4">
-                {selected.length === 0 && <li className="text-white/60 text-sm">Nessun boccone selezionato</li>}
-                {selected.map((x, idx) => (
-                  <li key={idx} className="flex items-center justify-between bg-white/5 rounded-lg px-3 py-2">
-                    <span className="text-sm">{x.type === 'pasta' ? 'Pasta' : 'Salsa'} • {x.name}</span>
-                    <button onClick={() => toggleItem(x)} className="text-white/70 hover:text-white">×</button>
-                  </li>
-                ))}
+            <motion.div
+              className="rounded-2xl border border-white/10 p-6 sticky top-24"
+              style={{boxShadow: `0 10px 30px ${brandBlue}22`}}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+            >
+              <input value={title} onChange={(e) => setTitle(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 mb-4 focus:outline-none focus:ring-2" style={{ outline: 'none', boxShadow: `0 0 0 0 ${brandBlue}` }} placeholder="Dai un nome al tuo piatto" />
+              <ul className="space-y-2 mb-4 min-h-[44px]">
+                <AnimatePresence initial={false}>
+                  {selected.length === 0 && (
+                    <li className="text-white/60 text-sm">Nessun boccone selezionato</li>
+                  )}
+                  {selected.map((x, idx) => (
+                    <motion.li
+                      key={`${x.type}-${x.name}`}
+                      layout
+                      initial={{ opacity: 0, y: -6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -6 }}
+                      className="flex items-center justify-between bg-white/5 rounded-lg px-3 py-2"
+                    >
+                      <span className="text-sm">{x.type === 'pasta' ? 'Pasta' : 'Salsa'} • {x.name}</span>
+                      <button onClick={() => toggleItem(x)} className="text-white/70 hover:text-white">×</button>
+                    </motion.li>
+                  ))}
+                </AnimatePresence>
               </ul>
               <div className="flex items-center justify-between mb-4">
                 <span className="text-white/70">Prezzo</span>
                 <span className="text-xl font-bold">€ {price.toFixed(2)}</span>
               </div>
-              <button disabled={selected.length === 0} onClick={saveBuild} className="w-full rounded-full px-5 py-3 font-semibold text-white disabled:opacity-50" style={{background: brandBlue}}>Salva la composizione</button>
+              <button disabled={selected.length === 0} onClick={saveBuild} className="w-full rounded-full px-5 py-3 font-semibold text-white disabled:opacity-50 hover:shadow-[0_12px_40px_rgba(17,119,191,0.4)] transition" style={{background: brandBlue}}>Salva la composizione</button>
               <p className="text-xs text-white/50 mt-3">Prezzi indicativi per la demo.</p>
-            </div>
+            </motion.div>
           </div>
         </div>
       </div>

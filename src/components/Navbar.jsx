@@ -1,25 +1,44 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { motion, useScroll, useSpring } from 'framer-motion'
 
 const brandBlue = '#1177bf'
 
 export default function Navbar() {
   const [open, setOpen] = useState(false)
+  const [elevated, setElevated] = useState(false)
+  const { scrollYProgress } = useScroll()
+  const scaleX = useSpring(scrollYProgress, { stiffness: 120, damping: 20, mass: 0.3 })
+
+  useEffect(() => {
+    const onScroll = () => {
+      setElevated(window.scrollY > 4)
+    }
+    onScroll()
+    window.addEventListener('scroll', onScroll)
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   return (
     <header className="fixed top-0 inset-x-0 z-50">
+      {/* Scroll progress bar */}
+      <motion.div className="h-0.5 origin-left" style={{ background: brandBlue, scaleX }} />
+
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="relative flex h-16 items-center justify-between rounded-b-2xl bg-black/70 backdrop-blur supports-[backdrop-filter]:bg-black/40 border border-white/10">
-          <a href="#" className="flex items-center gap-2 pl-4">
-            <div className="w-8 h-8 rounded-full" style={{background: brandBlue}}></div>
+        <div className={`relative mt-1 flex h-16 items-center justify-between rounded-b-2xl border transition-all ${elevated ? 'bg-black/70 backdrop-blur border-white/15 shadow-[0_10px_30px_rgba(17,119,191,0.15)]' : 'bg-black/40 supports-[backdrop-filter]:bg-black/30 border-white/10'}`}>
+          <a href="#" className="flex items-center gap-2 pl-4 group">
+            <div className="relative w-8 h-8">
+              <span className="absolute inset-0 rounded-full" style={{ background: brandBlue }}></span>
+              <span className="absolute inset-0 rounded-full blur-md opacity-70" style={{ background: brandBlue }}></span>
+            </div>
             <span className="text-white text-lg font-semibold tracking-wide">Boccone</span>
           </a>
 
           <nav className="hidden md:flex items-center gap-8 pr-4">
-            <a href="#bocconi" className="text-sm text-white/80 hover:text-white transition">Crea il tuo piatto</a>
-            <a href="#menu" className="text-sm text-white/80 hover:text-white transition">Menu</a>
-            <a href="#prenota" className="text-sm text-white/80 hover:text-white transition">Prenota</a>
+            <a href="#bocconi" className="nav-link">Crea il tuo piatto</a>
+            <a href="#menu" className="nav-link">Menu</a>
+            <a href="#prenota" className="nav-link">Prenota</a>
             <a href="/test" className="text-sm text-white/60 hover:text-white transition">Test Backend</a>
-            <a href="#prenota" className="inline-flex items-center rounded-full px-4 py-2 text-sm font-semibold text-white shadow-sm" style={{background: brandBlue}}>Prenota un tavolo</a>
+            <a href="#prenota" className="inline-flex items-center rounded-full px-4 py-2 text-sm font-semibold text-white shadow-sm hover:shadow-[0_8px_24px_rgba(17,119,191,0.45)] transition" style={{background: brandBlue}}>Prenota un tavolo</a>
           </nav>
 
           <button onClick={() => setOpen(!open)} className="md:hidden p-3 text-white/80 hover:text-white focus:outline-none pr-4">
@@ -44,6 +63,13 @@ export default function Navbar() {
           </div>
         </div>
       )}
+
+      <style>{`
+        .nav-link { position: relative; font-size: 0.9rem; color: rgba(255,255,255,0.8); transition: color .2s ease; }
+        .nav-link:hover { color: white; }
+        .nav-link::after { content: ''; position: absolute; left: 0; right: 0; bottom: -8px; height: 2px; background: ${brandBlue}; transform: scaleX(0); transform-origin: left; transition: transform .25s ease; border-radius: 9999px; }
+        .nav-link:hover::after { transform: scaleX(1); }
+      `}</style>
     </header>
   )
 }
